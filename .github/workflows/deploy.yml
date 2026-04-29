@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ master, main ]
+
+# Required to give the action permission to push to the gh-pages branch
+permissions:
+  contents: write
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          # You can specify a flutter version here if needed, e.g., flutter-version: '3.19.x'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        # The base-href MUST match your repository name exactly (case-sensitive)
+        run: flutter build web --release --base-href /Portfolio/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
